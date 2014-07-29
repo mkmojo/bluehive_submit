@@ -39,7 +39,8 @@ def CreateNewScript(dir_name, dir_path,abyss_path, mem_per_core, k, name, in_fil
             "test_" + dir_name + " in='"+in_file+"'" + "\n")
     f.close()
 
-dir_list = ["1_1", "2_1", "4_1", "8_1", "12_1", "16_1", "24_1","24_6", "48_2", "64_3", "120_5"]
+#dir_list = ["1_1", "2_1", "4_1", "8_1", "12_1", "16_1", "24_1","24_6", "48_2", "64_3", "120_5"]
+dir_list = ["1_1", "2_1", "4_1", "8_1"]
 usage = '''
 submit_experiment.py
     create: create folders
