@@ -14,6 +14,8 @@ def RemoveFolder(folder_name):
 def CreateNewScript(dir_name, dir_path,abyss_path, mem_per_core, k, name, in_file):
     list = dir_name.split("_")
     np = list[0]
+    #nm == number of machens
+    nm = list[1]
     f = open(dir_path, "w")
     f.write("#!/bin/bash\n" +\
             "#SBATCH -J " + dir_name +"\n" +\
@@ -28,11 +30,16 @@ def CreateNewScript(dir_name, dir_path,abyss_path, mem_per_core, k, name, in_fil
             "#SBATCH --mail-type end\n" +\
             "#SBATCH --mail-user qiuqiyuan@gmail.com\n")
 
+    if(int(np)/int(nm) <= 24):
+	f.write("#SBATCH --ntasks-per-node=" + str(int(np)/int(nm)) + "\n")
+    else:
+	f.write("#SBATCH --ntasks-per-node=24\n")
+
     f.write(abyss_path + " np="+np + " k=" + k +" name=" + \
             "test_" + dir_name + " in='"+in_file+"'" + "\n")
     f.close()
 
-dir_list = ["1_1", "2_1", "4_1", "8_1", "12_1", "16_1", "24_1"]
+dir_list = ["1_1", "2_1", "4_1", "8_1", "12_1", "16_1", "24_1","24_6", "48_2", "64_3", "120_5"]
 usage = '''
 submit_experiment.py
     create: create folders
@@ -51,8 +58,7 @@ def main():
                 CreateFolder(dir_name)
             else:
                 print "folder " + dir_name + " already exists"
-                print "removing " + dir_name
-                RemoveFolder(dir_name)
+	exit(1)
     elif(sys.argv[1] == "clean"):
         for dir_name in dir_list:
             files = os.listdir(dir_name)
@@ -61,6 +67,7 @@ def main():
                 path =  os.path.join(os.getcwd(),dir_name,f)
                 os.remove(path)
                 print path + " removed"
+	exit(1)
     elif(sys.argv[1] =="slurm"):
         assert(len(sys.argv) == 7)
         for dir_name in dir_list:
@@ -74,8 +81,16 @@ def main():
             CreateNewScript(dir_name,dir_path, abyss_path, mem_per_core, k, name, in_file)
             print dir_path + " created"
         exit(1)
-
-
+    elif(sys.argv[1] == "submit"):
+	owd = os.getcwd()
+	for dir_name in dir_list:
+	    dir_path = os.path.join(owd, dir_name)
+	    print dir_path
+	    os.chdir(dir_path)
+	    print "submit task"
+	    os.system("sbatch run.bash")
+	    os.chdir(owd)
+	exit(1)
 
 if __name__ == "__main__":
     main()
